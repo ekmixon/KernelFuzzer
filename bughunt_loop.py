@@ -41,52 +41,58 @@ for r, d, filenames in os.walk('C:/Dumps/'):
                         try:
                                 print("Creating folder...")
                                 tstamp = time.time()
-                                folder = "crashes/%s" % str(tstamp)
+                                folder = f"crashes/{str(tstamp)}"
                                 os.makedirs(folder, 777)
                         except:
                                 print("Error, cannot create folder structure.")
-                                pass
-
                         # Currently copying the memory dump as opposed to just moving it.
                         #shutil.copyfile("C:/Dumps/%s" % filename, "%s/%s" % (folder, filename))
                         # Move instead of copying.
                         print("Moving memory dump to new folder...")
-                        os.rename("C:/Dumps/%s" % filename, "%s/%s" % (folder, filename))
-                        
+                        os.rename(f"C:/Dumps/{filename}", f"{folder}/{filename}")
+
                         # Process the memory dump using kd_batch_commands.txt.
-                        print("Analysing memory dump... %s" % filename)
-                        #kd_log = open("%s/%s.log" % (folder, filename.split('.')[0]),"wb")
-                        kd_log = open("%s/windbg.log" % folder, "wb")
-                        call(["C:\\Program Files\\Debugging Tools for Windows (x64)\\kd.exe", "-z", "%s\%s" % (folder, filename), "-c", "$$<crash_processing\\kd_batch_commands.txt;Q"], stdout=kd_log)
-                        kd_log.close()
+                        print(f"Analysing memory dump... {filename}")
+                        with open(f"{folder}/windbg.log", "wb") as kd_log:
+                                call(["C:\\Program Files\\Debugging Tools for Windows (x64)\\kd.exe", "-z", "%s\%s" % (folder, filename), "-c", "$$<crash_processing\\kd_batch_commands.txt;Q"], stdout=kd_log)
                         crash_found = True
                 except:
                         print("Error, cannot process memory dump.")
-                        pass
-
 if crash_found:
         # Preserve log file(s) left before BSODs and move to same folder.
         for r, d, filenames in os.walk('.'):
                 for filename in fnmatch.filter(filenames, 'log.*'):
 
                         try:
-                                os.rename("./%s" % filename, "%s/%s" % (folder, filename))
+                                os.rename(f"./{filename}", f"{folder}/{filename}")
                         except:
                                 print("Error, cannot move log file.")
-                                pass
-
         # Submit crash information to our CouchDB instance.
 
         try:
                 # Invoke couchdb_submit.py with the correct arguments.
-                call(["C:\Python35\python.exe", "crash_processing\\couchdb_submit.py", "--server", "IPADDRESS", "--database", "DBNAME", "--username", "USER", "--password", "PW", "add-crash", "--crash-path", "%s" % folder])
+                call([
+                    "C:\Python35\python.exe",
+                    "crash_processing\\couchdb_submit.py",
+                    "--server",
+                    "IPADDRESS",
+                    "--database",
+                    "DBNAME",
+                    "--username",
+                    "USER",
+                    "--password",
+                    "PW",
+                    "add-crash",
+                    "--crash-path",
+                    f"{folder}",
+                ])
         except:
                 print("Error, cannot submit crash information to database.")
                 raise
 
 try:
 	# Run the fuzzer with the specified timeout.
-        call(['%s' % COMMAND, '%s' % THREADS, '%s' % EXECUTIONS, '%s' % SEED], timeout=TIMEOUT)
+        call([f'{COMMAND}', f'{THREADS}', f'{EXECUTIONS}', f'{SEED}'], timeout=TIMEOUT)
         # We need a way of querying the CPU load while doing a long, e.g. 25 minute run. If the load is below 90% for more than 2-3 minute, we assume our process is dead. Should that be the case, reboot. Sound like 'psutils' is the module we need for the performance check.
 
 except TimeoutExpired:

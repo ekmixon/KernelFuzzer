@@ -27,7 +27,7 @@ class CouchDBlib:
 
 	def zip_crashdata(self,crashpath,fn):
 		print("++ Zipping ", crashpath)
-		output_filename = crashpath + "/../" + fn
+		output_filename = f"{crashpath}/../{fn}"
 		shutil.make_archive(output_filename, 'zip', crashpath)
 		return output_filename
 
@@ -43,7 +43,7 @@ class CouchDBlib:
 		# Read the testcases for uploading
 		testcase_zip = path + "\\../" + fn + ".zip"
 		testcase = open(testcase_zip,"rb").read()
-		
+
 
 		# Change this so the log filename doesn't have to be hardcoded. 
 		debug_log_path = os.path.join(path +"\\windbg.log")
@@ -56,7 +56,7 @@ class CouchDBlib:
 		parserstack = parserstack.encode('utf-8')
 
 		crashhash = hashlib.sha224(parserstack).hexdigest()
-		
+
 		startip = debug_log.find("FAULTING_IP: ")
 		endip = debug_log.find("CONTEXT:  ")
 		parserip = debug_log[startip:endip]
@@ -82,8 +82,8 @@ class CouchDBlib:
 			}
 
 			self.db.save(doc)
-			self.db.put_attachment(doc,testcase, filename=fn+".zip") 	
-			self.db.put_attachment(doc,debug_log,filename=fn+".log") 	# crash log
+			self.db.put_attachment(doc, testcase, filename=f"{fn}.zip")
+			self.db.put_attachment(doc, debug_log, filename=f"{fn}.log")
 
 		# Cleanup the zip file data
 		os.remove(testcase_zip)
@@ -107,8 +107,8 @@ class CouchDBlib:
 				'reduced'		: False
 			}
 			self.db.save(doc)
-			self.db.put_attachment(doc,testcase, filename=fn+".zip") 	
-			self.db.put_attachment(doc,debug_log,filename=fn+".log") 	
+			self.db.put_attachment(doc, testcase, filename=f"{fn}.zip")
+			self.db.put_attachment(doc, debug_log, filename=f"{fn}.log") 	
 
 
 	def is_crash_in_db(self,crashhash):

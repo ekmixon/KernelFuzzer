@@ -31,7 +31,7 @@ def change_registry():
 	print("[!] Disabling Windows Updates...")
 	subprocess.call(["C:\\Windows\\System32\\reg.exe", "import", "disable_windows_updates.reg"])
 
-def enable_kernel_dumps():	
+def enable_kernel_dumps():
 	print("[!] Enabling Small Memory Dumps...")
 
 	dump_dir = "C:\\Dumps"
@@ -48,8 +48,8 @@ def enable_kernel_dumps():
 
 	# Set memory dump path.
 	#subprocess.call(["wmic","recoveros","set",'DebugFilePath="' + dump_dir + '"'])
-	# Set minidump path.	
-	subprocess.call(["wmic","recoveros","set","MiniDumpDirectory=%s" % dump_dir])
+	# Set minidump path.
+	subprocess.call(["wmic", "recoveros", "set", f"MiniDumpDirectory={dump_dir}"])
 
 def schedule_task():
 	print("[!] Scheduling Task...")
